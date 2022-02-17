@@ -142,7 +142,7 @@ public class UsuarioDAO extends Usuario {
 	 * 
 	 * @return true if the User has been updated/insert, false if not
 	 */
-	public int insert_update() {
+	public synchronized int insert_update() {
 		int rs = 0;
 		Connection con = Conexion.getConexion();
 
@@ -159,17 +159,6 @@ public class UsuarioDAO extends Usuario {
 				q.setBoolean(8, this.administrador);
 				q.setString(9, this.username);
 				q.setString(10, this.password);
-				/*q.setString(2, this.name);
-				q.setString(3, this.apellido);
-				q.setBoolean(4, this.administrador);
-				q.setString(5, this.username);
-				q.setString(6, this.password);
-				q.setInt(7, this.id);
-				q.setString(8, this.name);
-				q.setString(9, this.apellido);
-				q.setBoolean(10, this.administrador);
-				q.setString(11, this.username);
-				q.setString(12, this.password);*/
 				rs = q.executeUpdate();
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -184,7 +173,7 @@ public class UsuarioDAO extends Usuario {
 	 * @param id unique for all the User
 	 * @return true if the User has been removed, false if not
 	 */
-	public static boolean Remove_User_by_Id(Integer id) {
+	public synchronized  static boolean Remove_User_by_Id(Integer id) {
 		boolean result = false;
 		Connection c = Conexion.getConexion();
 
@@ -208,7 +197,7 @@ public class UsuarioDAO extends Usuario {
 	 *
 	 * @return true if the User has been removed, false if not
 	 */
-	public boolean remove_User() {
+	public synchronized boolean remove_User() {
 		boolean result = false;
 		Connection c = Conexion.getConexion();
 

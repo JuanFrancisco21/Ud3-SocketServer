@@ -98,7 +98,7 @@ public class CuentaDAO extends Cuenta{
 	 * 
 	 * @return true if the Account has been insert, false if not
 	 */
-	public int insert() {
+	public synchronized int insert() {
 		int rs = 0;
 		Connection con = Conexion.getConexion();
 
@@ -122,7 +122,7 @@ public class CuentaDAO extends Cuenta{
 	 * 
 	 * @return true if the Account has been updated, false if not
 	 */
-	public int update() {
+	public synchronized int update() {
 		int rs = 0;
 		Connection con = Conexion.getConexion();
 
@@ -151,7 +151,7 @@ public class CuentaDAO extends Cuenta{
 	 * @param id unique for all the Account
 	 * @return true if the Account has been removed, false if not
 	 */
-	public static boolean Remove_Cuenta_by_Id(Integer id) {
+	public synchronized static boolean Remove_Cuenta_by_Id(Integer id) {
 		boolean result = false;
 		Connection c = Conexion.getConexion();
 
@@ -175,7 +175,7 @@ public class CuentaDAO extends Cuenta{
 	 *
 	 * @return true if the Account has been removed, false if not
 	 */
-	public boolean remove_Cuenta() {
+	public synchronized boolean remove_Cuenta() {
 		boolean result = false;
 		Connection c = Conexion.getConexion();
 

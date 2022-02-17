@@ -8,31 +8,42 @@ public class Mensaje implements Serializable{
 	
 	private String usuario;
 	private String contraseña;
-	private int comando;
 	private String descripcion;
-	private int dinero;
+	private int comando;
+	private int dineroTransaccion;
+	private Usuario user;
+	private Cuenta cuenta;
 	
 	
 
-	public Mensaje(String usuario, String contraseña, int comando, String descripcion, int dinero) {
+	
+	
+	public Mensaje(String usuario, String contraseña, String descripcion, int comando, int dineroTransaccion,
+			Usuario user, Cuenta cuenta) {
 		this.usuario = usuario;
 		this.contraseña = contraseña;
 		this.comando = comando;
 		this.descripcion = descripcion;
-		this.dinero = dinero;
+		this.dineroTransaccion = dineroTransaccion;
+		this.user = user;
+		this.cuenta = cuenta;
 	}
-	
+
 	public Mensaje(Mensaje mensaje) {
 		this.usuario = mensaje.usuario;
 		this.contraseña = mensaje.contraseña;
 		this.comando = mensaje.comando;
 		this.descripcion = mensaje.descripcion;
-		this.dinero = mensaje.dinero;
+		this.dineroTransaccion = mensaje.dineroTransaccion;
+		this.user = mensaje.user;
+		this.cuenta = mensaje.cuenta;
 	}
 
 	public Mensaje() {
-		this("","",0,"",0);
+		this("","","", 0, 0, null, null);
 	}
+	
+	
 
 	public String getUsuario() {
 		return usuario;
@@ -50,14 +61,6 @@ public class Mensaje implements Serializable{
 		this.contraseña = contraseña;
 	}
 
-	public int getComando() {
-		return comando;
-	}
-
-	public void setComando(int comando) {
-		this.comando = comando;
-	}
-
 	public String getDescripcion() {
 		return descripcion;
 	}
@@ -66,19 +69,46 @@ public class Mensaje implements Serializable{
 		this.descripcion = descripcion;
 	}
 
-	public int getDinero() {
-		return dinero;
+	public int getComando() {
+		return comando;
 	}
 
-	public void setDinero(int dinero) {
-		this.dinero = dinero;
+	public void setComando(int comando) {
+		this.comando = comando;
+	}
+
+	public int getDineroTransaccion() {
+		return dineroTransaccion;
+	}
+
+	public void setDineroTransaccion(int dineroTransaccion) {
+		this.dineroTransaccion = dineroTransaccion;
+	}
+
+	public Usuario getUser() {
+		return user;
+	}
+
+	public void setUser(Usuario user) {
+		this.user = user;
+	}
+
+	public Cuenta getCuenta() {
+		return cuenta;
+	}
+
+	public void setCuenta(Cuenta cuenta) {
+		this.cuenta = cuenta;
 	}
 
 	@Override
 	public String toString() {
-		return "Mensaje [usuario=" + usuario + ", contraseña=" + contraseña + ", comando=" + comando + ", descripcion="
-				+ descripcion + ", dinero=" + dinero + "]";
+		return "Mensaje [usuario=" + usuario + ", contraseña=" + contraseña + ", descripcion=" + descripcion
+				+ ", comando=" + comando + ", dineroTransaccion=" + dineroTransaccion 
+				+ ", user=" + user.username + ", cuenta=" + cuenta.money + "]";
 	}
+
+
 
 	
 }
