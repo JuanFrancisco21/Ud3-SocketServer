@@ -1,7 +1,5 @@
 package Controller;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -64,7 +62,7 @@ public class Servidor {
 	private static boolean login() throws IOException {
 		boolean result = false;
 		mensaje.setDescripcion("¡Bienvenido a la sala de chat! \nIntroduzca su usuario y contraseña:");
-		sendObject();
+		sendObject(new Mensaje(mensaje));
 		try {
 			while (true) {
 				mensaje = (Mensaje) in.readObject();
@@ -79,7 +77,7 @@ public class Servidor {
 					}
 				} else {
 					mensaje.setDescripcion("El apodo que ingresó ya existe, vuelva a ingresar:");
-					sendObject();
+					sendObject(new Mensaje(mensaje));
 				}
 				
 			}
@@ -104,7 +102,7 @@ public class Servidor {
 	 * FUNCION PARA ENVIAR UN OBJETO AL CLIENTE CON EL SOCKET.
 	 * @throws IOException
 	 */
-	private static void sendObject() throws IOException {
+	private static void sendObject(Mensaje mensaje) throws IOException {
 		out.writeObject(mensaje);
 	}
 
