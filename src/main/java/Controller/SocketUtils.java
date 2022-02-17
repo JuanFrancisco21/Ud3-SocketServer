@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
+import Model.Mensaje;
 import Model.Usuario;
 
 public class SocketUtils {
@@ -40,10 +41,10 @@ public class SocketUtils {
 		}
 	}
 
-	public static void writeObjectDataOutput(Socket socket, Usuario usuario) throws IOException {
+	public static void writeObjectDataOutput(Socket socket, Mensaje mensaje) throws IOException {
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-			out.writeObject(usuario);
+			out.writeObject(mensaje);
 		} catch (SocketException se) {
 			se.printStackTrace();
 		} catch (IOException e) {
@@ -52,11 +53,11 @@ public class SocketUtils {
 
 	}
 
-	public static Usuario readObjectDataOutput(Socket socket) throws IOException {
-		Usuario result = new Usuario();
+	public static Mensaje readObjectDataOutput(Socket socket) throws IOException {
+		Mensaje result = new Mensaje();
 		try {
 			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-			result = (Usuario) in.readObject();
+			result = (Mensaje) in.readObject();
 		
 		} catch (Exception e) {
 			e.printStackTrace();
