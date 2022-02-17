@@ -33,7 +33,7 @@ public class Cliente {
 	 				mensaje.setDescripcion("h");
 					mensaje.setUsuario("juan");
 					mensaje.setContraseña("1234");
-					sendObject(new Mensaje(mensaje));
+					sendObject(mensaje);
 				} catch (Exception e) {
 					System.out.println("Error de comando");
 				}
@@ -50,7 +50,7 @@ public class Cliente {
 	 * @throws IOException
 	 */
 	private static void sendObject(Mensaje mensaje) throws IOException {
-		out.writeObject(mensaje);
+		out.writeObject(new Mensaje(mensaje));
 	}
 	
 }

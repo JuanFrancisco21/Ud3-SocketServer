@@ -170,7 +170,7 @@ public class Cuenta_UsuarioDAO extends Cuenta_Usuario{
 	 * 
 	 * @return true if the User has been updated/insert, false if not
 	 */
-	public int insert_update() {
+	public synchronized int insert_update() {
 		int rs = 0;
 		Connection con = Conexion.getConexion();
 
@@ -196,7 +196,7 @@ public class Cuenta_UsuarioDAO extends Cuenta_Usuario{
 	 * @param id unique for all the User
 	 * @return true if the User has been removed, false if not
 	 */
-	public static boolean Remove_Relation_by_Id(Integer id) {
+	public synchronized static boolean Remove_Relation_by_Id(Integer id) {
 		boolean result = false;
 		Connection c = Conexion.getConexion();
 
@@ -220,7 +220,7 @@ public class Cuenta_UsuarioDAO extends Cuenta_Usuario{
 	 *
 	 * @return true if the User has been removed, false if not
 	 */
-	public boolean remove_Relation() {
+	public synchronized boolean remove_Relation() {
 		boolean result = false;
 		Connection c = Conexion.getConexion();
 

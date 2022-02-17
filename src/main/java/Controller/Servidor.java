@@ -62,7 +62,7 @@ public class Servidor {
 	private static boolean login() throws IOException {
 		boolean result = false;
 		mensaje.setDescripcion("¡Bienvenido a la sala de chat! \nIntroduzca su usuario y contraseña:");
-		sendObject(new Mensaje(mensaje));
+		sendObject(mensaje);
 		try {
 			while (true) {
 				mensaje = (Mensaje) in.readObject();
@@ -77,7 +77,7 @@ public class Servidor {
 					}
 				} else {
 					mensaje.setDescripcion("El apodo que ingresó ya existe, vuelva a ingresar:");
-					sendObject(new Mensaje(mensaje));
+					sendObject(mensaje);
 				}
 				
 			}
@@ -103,7 +103,7 @@ public class Servidor {
 	 * @throws IOException
 	 */
 	private static void sendObject(Mensaje mensaje) throws IOException {
-		out.writeObject(mensaje);
+		out.writeObject(new Mensaje(mensaje));
 	}
 
 }

@@ -11,7 +11,7 @@ public class BDController {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		UsuarioDAO u=new UsuarioDAO(new Usuario(-1,"Cristian","Repullo",false,"cristian","1234"));
+		UsuarioDAO u=new UsuarioDAO(new Usuario(4,"Maria","Lucena",true,"maria","1234"));
 		CuentaDAO c=new CuentaDAO(new Cuenta(5, 10000F, ""));
 		Cuenta_UsuarioDAO cu=new Cuenta_UsuarioDAO();
 		
@@ -20,7 +20,7 @@ public class BDController {
 			System.out.println(s);
 		}
 //		System.out.println(u.List_User_By_Id(3));
-		System.out.println(u.List_User_By_Username("juan"));
+//		System.out.println(u.List_User_By_Username("juan"));
 
 //		System.out.println(c.insert());
 //		System.out.println(c.update());
