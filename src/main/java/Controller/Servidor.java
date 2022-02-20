@@ -33,7 +33,7 @@ public class Servidor {
 			System.out.println("El servidor iniciado y escuchando. PORT: " + PORT);
 
 			//BUCLE PARA ACEPTAR SOCKET COMPROBANDO LA BASE DE DATOS.
-			//while (true) {
+			while (true) {
 				try {
 					socket = ss.accept();
 					out = new ObjectOutputStream(socket.getOutputStream());
@@ -47,7 +47,7 @@ public class Servidor {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}	
-			//}
+			}
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -91,7 +91,7 @@ public class Servidor {
 		boolean result = false;
 		Usuario usuario = UsuarioDAO.List_User_By_Username(mensaje.getUsuario());
 		if (usuario.getId()>=0) {
-			if (usuario.getPassword().equals(mensaje.getContraseña())) {
+			if (usuario.getPassword().equals(mensaje.getPassword())) {
 				result = true;
 			}
 		}
