@@ -244,7 +244,7 @@ public class HiloServidor implements Runnable {
 		mensaje.setDescripcion( "********************************************************"
 							+ "\n*  Has iniciado sesión Nº" + Servidor.nickNameSocketMap.size()
 							+                             "                             *"
-							+ "\n*  1) Ingresar un nuevo usuario en el banco.			*"
+							+ "\n*  1) Ingresar un nuevo usuario en el banco.           *"
 							+ "\n*  2) Crear una nueva cuenta bancaria a (Cliente).     *"
 							+ "\n*  3) Ver los datos de una cuenta bancaria.            *"
 							+ "\n*  4) Ver los datos de un cliente.                     *"

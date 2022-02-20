@@ -7,7 +7,7 @@ public class Mensaje implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	private String usuario;
-	private String contraseña;
+	protected String password;
 	private String descripcion;
 	private int comando;
 	private int dineroTransaccion;
@@ -18,10 +18,10 @@ public class Mensaje implements Serializable{
 
 	
 	
-	public Mensaje(String usuario, String contraseña, String descripcion, int comando, int dineroTransaccion,
+	public Mensaje(String usuario, String password, String descripcion, int comando, int dineroTransaccion,
 			Usuario user, Cuenta cuenta) {
 		this.usuario = usuario;
-		this.contraseña = contraseña;
+		this.password = password;
 		this.comando = comando;
 		this.descripcion = descripcion;
 		this.dineroTransaccion = dineroTransaccion;
@@ -31,7 +31,7 @@ public class Mensaje implements Serializable{
 
 	public Mensaje(Mensaje mensaje) {
 		this.usuario = mensaje.usuario;
-		this.contraseña = mensaje.contraseña;
+		this.password = mensaje.password;
 		this.comando = mensaje.comando;
 		this.descripcion = mensaje.descripcion;
 		this.dineroTransaccion = mensaje.dineroTransaccion;
@@ -53,12 +53,12 @@ public class Mensaje implements Serializable{
 		this.usuario = usuario;
 	}
 
-	public String getContraseña() {
-		return contraseña;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setContraseña(String contraseña) {
-		this.contraseña = contraseña;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getDescripcion() {
@@ -103,7 +103,7 @@ public class Mensaje implements Serializable{
 
 	@Override
 	public String toString() {
-		return "Mensaje [usuario=" + usuario + ", contraseña=" + contraseña + ", descripcion=" + descripcion
+		return "Mensaje [usuario=" + usuario + ", contraseña=" + password + ", descripcion=" + descripcion
 				+ ", comando=" + comando + ", dineroTransaccion=" + dineroTransaccion 
 				+ ", user=" + user.username + ", cuenta=" + cuenta.money + "]";
 	}

@@ -31,8 +31,8 @@ public class Cliente {
 					input = Integer.parseInt(scanner.nextLine());
 	 				mensaje.setComando(input);
 	 				mensaje.setDescripcion("h");
-					mensaje.setUsuario("juan");
-					mensaje.setContraseña("1234");
+					mensaje.setUsuario("maria");
+					mensaje.setPassword("1234");
 					sendObject(mensaje);
 				} catch (Exception e) {
 					System.out.println("Error de comando");
