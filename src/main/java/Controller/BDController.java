@@ -15,10 +15,17 @@ public class BDController {
 		CuentaDAO c=new CuentaDAO(new Cuenta(5, 10000F, ""));
 		Cuenta_UsuarioDAO cu=new Cuenta_UsuarioDAO();
 		
+		//System.out.println(c.List_Cuenta_By_MAXId());
+		u = new UsuarioDAO(u.List_User_By_Id(16));
+		c = new CuentaDAO(c.List_Cuenta_By_Id(10));
+
+		cu = new Cuenta_UsuarioDAO(u, c);
+		cu.insert();
 //		System.out.println(u.Remove_User_by_Id(null));
-		for (Usuario s : u.List_All_User()) {
+		/*for (Usuario s : u.List_All_User()) {
 			System.out.println(s);
-		}
+		}*/
+
 //		System.out.println(u.List_User_By_Id(3));
 //		System.out.println(u.List_User_By_Username("juan"));
 
@@ -33,9 +40,9 @@ public class BDController {
 		
 		/*for (Cuenta_Usuario s : cu.List_All_Relation()) {
 			System.out.println(s);
-		}
-		System.out.println(cu.List_Relation_By_User(2));
-		*/
+		}*/
+		//System.out.println(cu.List_Relation_By_User(2));
+		
 	}
 
 }
