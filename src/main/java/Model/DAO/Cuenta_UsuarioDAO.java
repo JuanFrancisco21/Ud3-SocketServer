@@ -7,10 +7,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import Model.Cuenta;
 import Model.Cuenta_Usuario;
+import Model.Usuario;
 import Utils.Conexion;
 
 public class Cuenta_UsuarioDAO extends Cuenta_Usuario{
+	private final static String INSERT = "INSERT INTO cuenta_usuario ( id_usuario, id_cuenta) "
+			+ "VALUES (?,?) ";
 	private final static String INSERTUPDATE = "INSERT INTO cuenta_usuario (id_usuario, id_cuenta) "
 			+ "VALUES (?,?) "
 			+ "ON DUPLICATE KEY UPDATE id=?, id_usuario=?, id_cuenta=?";
@@ -28,6 +32,12 @@ public class Cuenta_UsuarioDAO extends Cuenta_Usuario{
 		this.setId(relacion.getId());
 		this.setUsuario(relacion.getUsuario());
 		this.setCuenta(relacion.getCuenta());
+
+	}
+	public Cuenta_UsuarioDAO(Usuario usuario, Cuenta cuenta) {
+		this.setId(-1);
+		this.setUsuario(usuario);
+		this.setCuenta(cuenta);
 
 	}
 
@@ -182,6 +192,29 @@ public class Cuenta_UsuarioDAO extends Cuenta_Usuario{
 				q.setInt(2, this.id);
 				q.setInt(3, this.usuario.getId());
 				q.setInt(4, this.cuenta.getId());
+				rs = q.executeUpdate();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return rs;
+	}
+	
+	
+	/**
+	 * Create new User if don´t exist.
+	 * 
+	 * @return true if the User has been insert.
+	 */
+	public synchronized int insert() {
+		int rs = 0;
+		Connection con = Conexion.getConexion();
+
+		if (con != null) {
+			try {
+				PreparedStatement q = con.prepareStatement(INSERT);
+				q.setInt(1, this.usuario.getId());
+				q.setInt(2, this.cuenta.getId());
 				rs = q.executeUpdate();
 			} catch (SQLException e) {
 				e.printStackTrace();

@@ -37,32 +37,46 @@ public class HiloServidor implements Runnable {
 		this.out = out;
 		this.in = in;
 		this.usuario = UsuarioDAO.List_User_By_Username(nickname);
-		this.cuenta = CuentaDAO.List_Cuenta_By_Id(UsuarioDAO.List_User_By_Username(nickname).getId());
+		this.cuenta = CuentaDAO.List_Cuenta_By_Id(Cuenta_UsuarioDAO.List_Relation_By_User(UsuarioDAO.List_User_By_Username(nickname).getId()).getCuenta().getId());
 	}
 
+	/**
+	 * Método run el cual siempre recibe un mensaje del cliente y
+	 * ejecuta el comando con la datos recibidos en el mensaje.
+	 * 
+	 * Como return envia de vuelta el mensaje con el codigo 100 
+	 * y el usuario o cuenta guardados en el mensaje.
+	 */
 	public void run() {
 		int comando= 0;
 		try {
 			
 			if (!usuario.getAdministrador()) {//--CLIENTE----------------------------------------------------------
-				sendMenuCliente();
 				while (comando>=-1) {
 					this.cuenta = CuentaDAO.List_Cuenta_By_Id(UsuarioDAO.List_User_By_Username(usuario.getUsername()).getId());
 					mensaje=(Mensaje)  in.readObject();
-					System.out.println(currentUserNickName + " Ingresó: " + mensaje.getComando());
 					comando = mensaje.getComando();
 
 					try {
 						switch (comando) {
 						case 1:
 							//CONSULTAR TODAS LAS CUENTAS DE LOS USUARIOS
-							mensaje.setCuenta(cuenta);
-							mensaje.setDescripcion("Cuenta actual del usuario");
-							sendObject(mensaje);
+							if (cuenta!=null && usuario!=null) {
+								cuenta=CuentaDAO.List_Cuenta_By_Id(Cuenta_UsuarioDAO.List_Relation_By_User(
+										UsuarioDAO.List_User_By_Username(currentUserNickName).getId()).getCuenta().getId());
+								mensaje.setCuenta(cuenta);
+								mensaje.setDescripcion("Cuenta actual del usuario");
+								sendObject(mensaje);
+							}else {
+								mensaje.setDescripcion("Cuenta no encontrada por el usuario");
+								sendObject(mensaje);
+							}
 							break;
 						case 2:
 							//RETIRAR X CANTIDAD DE DINERO
-							if (mensaje.getCuenta()!=null && mensaje.getDineroTransaccion()>=1) {
+							if (mensaje.getCuenta()!=null && mensaje.getDineroTransaccion()>=1 && cuenta.getMoney()>mensaje.getDineroTransaccion()) {
+								cuenta=CuentaDAO.List_Cuenta_By_Id(Cuenta_UsuarioDAO.List_Relation_By_User(
+										UsuarioDAO.List_User_By_Username(currentUserNickName).getId()).getCuenta().getId());
 								CuentaDAO c = new CuentaDAO(cuenta);
 								c.setMoney(c.getMoney()-(mensaje.getDineroTransaccion()));
 								c.setTransactions(c.getTransactions()+"\nRetirados "+mensaje.getDineroTransaccion()+"€ por "+usuario.getName());
@@ -78,9 +92,11 @@ public class HiloServidor implements Runnable {
 						case 3:
 							//INGRESAR X CATIDAD DE DINERO
 							if (mensaje.getCuenta()!=null && mensaje.getDineroTransaccion()>=1) {
+								cuenta=CuentaDAO.List_Cuenta_By_Id(Cuenta_UsuarioDAO.List_Relation_By_User(
+										UsuarioDAO.List_User_By_Username(currentUserNickName).getId()).getCuenta().getId());
 								CuentaDAO c = new CuentaDAO(cuenta);
 								c.setMoney(c.getMoney()+(mensaje.getDineroTransaccion()));
-								c.setTransactions(c.getTransactions()+"\nRetirados "+mensaje.getDineroTransaccion()+"€ por "+usuario.getName());
+								c.setTransactions(c.getTransactions()+"\nIngresados "+mensaje.getDineroTransaccion()+"€ por "+usuario.getName());
 								c.update();
 								mensaje.setCuenta(c);
 								mensaje.setDescripcion("Ingrasados "+mensaje.getDineroTransaccion()+"€ a la cuenta");
@@ -106,66 +122,88 @@ public class HiloServidor implements Runnable {
 					
 				}
 			} else {//----------------OPERARIO---------------------------------------------------------------------
-				sendMenuOperador();
 				while (comando>=-1) {
 					mensaje=(Mensaje)  in.readObject();
-					System.out.println(currentUserNickName + " Ingresó: " + mensaje.getComando());
 					comando = mensaje.getComando();
 
 					try {
 						switch (comando) {
 						case 1:
 							//Ingresar un nuevo usuario en el banco.
-							if (mensaje.getUser()!=null && mensaje.getUser().getId()>=0) {
-								UsuarioDAO u = new UsuarioDAO(mensaje.getUser());		
-								u.setId(-1);
-								u.insert_update();
-							}else {
-								mensaje.setDescripcion("Error al crear a un usuario");
+							try {
+								if (mensaje.getUser()!=null) {
+									UsuarioDAO u = new UsuarioDAO(mensaje.getUser());		
+									u.setId(-1);
+									u.insert_update();
+									mensaje.setDescripcion("Creado usuario usuario");
+									mensaje.setUser(u.List_User_By_Username(mensaje.getUser().getUsername()));
+									sendObject(mensaje);
+								}
+							} catch (Exception e) {
+								mensaje.setDescripcion("Error al crear a un usuario(No repetir campo usuario)");
 								sendObject(mensaje);
 							}
+							
 							break;
 						case 2:
-							//Crear una nueva cuenta bancaria (se deberá asignar al menos a un cliente)
-							if (mensaje.getUser()!=null && mensaje.getUser().getId()>=0) {
-								CuentaDAO c = new CuentaDAO(new Cuenta(-1, 0F, ""));
-								Cuenta_UsuarioDAO r = new Cuenta_UsuarioDAO(new Cuenta_Usuario(-1, mensaje.getUser(), c));
-								c.insert();
-								mensaje.setDescripcion("Creada cuenta");
-								r.insert_update();
-								mensaje.setDescripcion("Nueva cuenta asignada al usuario");
-							}else {
-								mensaje.setDescripcion("Error al crearle cuenta a un usuario");
+							//Crear una nueva cuenta bancaria a un cliente 
+							try {
+								UsuarioDAO u = new UsuarioDAO(mensaje.getUser());
+								Cuenta_UsuarioDAO r = new Cuenta_UsuarioDAO();
+								if (mensaje.getUser()!=null) {
+									//  CREACION/UPDATE DEL CLIENTE/OPERARIO
+									u.setId(-1);
+									u.insert_update();
+									u = new UsuarioDAO(u.List_User_By_Username(mensaje.getUser().getUsername()));
+									
+									//	CREACION DE NUEVA CUENTA Y TRAERLA DE LA BBDD
+									CuentaDAO c = new CuentaDAO(new Cuenta(-1, 0F, ""));
+									c.insert();
+									c = new CuentaDAO(c.List_Cuenta_By_MAXId());
+									
+									//  CREAR RELACION ENTRE AL NUEVA CUENTA Y EL USUARIO(CREADO/ACTUALIZADO)
+									r = new Cuenta_UsuarioDAO(u, c);
+									r.insert();
+									
+									mensaje.setDescripcion("Nueva cuenta asignada al usuario");
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+								mensaje.setDescripcion("Error al asignar cuenta al cliente");
 								sendObject(mensaje);
 							}
 							break;
 						case 3:
 							//Ver los datos de una cuenta bancaria.
-							int id_cuenta = Integer.parseInt(mensaje.getDescripcion());
-							mensaje.setCuenta(CuentaDAO.List_Cuenta_By_Id(id_cuenta));
-							if (mensaje.getUser().getId()<=0) {
-								mensaje.setDescripcion("Cuenta no encontrado");
+							try {
+								int id_cuenta = mensaje.getCuenta().getId();
+								mensaje.setCuenta(CuentaDAO.List_Cuenta_By_Id(id_cuenta));
+								sendObject(mensaje);
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
-							sendObject(mensaje);
 							break;
 						case 4:
 							//Ver los datos de un cliente.
-							mensaje.setUser(UsuarioDAO.List_User_By_Username(mensaje.getDescripcion()));
-							mensaje.setCuenta(null);
-							if (mensaje.getUser().getId()<=0) {
-								mensaje.setDescripcion("Cliente no encontrado");
+							try {
+								int id_usuario = mensaje.getUser().getId();
+								mensaje.setUser(UsuarioDAO.List_User_By_Id(id_usuario));
+								sendObject(mensaje);
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
-							sendObject(mensaje);
 							break;
 						case 5:
 							//Eliminar una cuenta bancaria
-							if (mensaje.getCuenta()!=null && mensaje.getCuenta().getId()>=0) {
-								CuentaDAO cu = new CuentaDAO(mensaje.getCuenta());
-								cu.remove_Cuenta();
-								mensaje.setCuenta(null);
-								mensaje.setDescripcion("Cuenta borrada con exito");
-								sendObject(mensaje);
-							}else {
+							try {
+								if (mensaje.getCuenta()!=null && mensaje.getCuenta().getId()>=0) {
+									CuentaDAO cu = new CuentaDAO(mensaje.getCuenta());
+									cu.remove_Cuenta();
+									mensaje.setCuenta(null);
+									mensaje.setDescripcion("Cuenta borrada con exito");
+									sendObject(mensaje);
+								}
+							} catch (Exception e) {
 								mensaje.setDescripcion("Error al borrar cuenta a un usuario");
 								sendObject(mensaje);
 							}
@@ -187,10 +225,6 @@ public class HiloServidor implements Runnable {
 					
 				}
 			}//----------------------------------------------------------------------------------------------------
-			
-			
-
-
 			
 		} catch (IOException e) {
 
@@ -220,63 +254,16 @@ public class HiloServidor implements Runnable {
 		
 	}
 
-	
-	/**
-	 * METODO QUE ENVIA EL MENU AL CLIENTE.
-	 * @throws IOException
-	 */
-	private void sendMenuCliente() throws IOException{
-		mensaje.setDescripcion( "********************************************************"
-							+ "\n*  Has iniciado sesión Nº" + Servidor.nickNameSocketMap.size()
-							+                             "                             *"
-							+ "\n*  1) Ver el saldo de la cuenta del cliente            *"
-							+ "\n*  2) Sacar dinero de la cuenta                        *"
-							+ "\n*  3) Ingresar dinero en la cuenta                     *"
-							+ "\n*  4) Salir                                            *"
-							+ "\n********************************************************");
-		sendObject(this.mensaje);
-	}
-	/**
-	 * METODO QUE ENVIA EL MENU AL CLIENTE.
-	 * @throws IOException
-	 */
-	private void sendMenuOperador() throws IOException{
-		mensaje.setDescripcion( "********************************************************"
-							+ "\n*  Has iniciado sesión Nº" + Servidor.nickNameSocketMap.size()
-							+                             "                             *"
-							+ "\n*  1) Ingresar un nuevo usuario en el banco.           *"
-							+ "\n*  2) Crear una nueva cuenta bancaria a (Cliente).     *"
-							+ "\n*  3) Ver los datos de una cuenta bancaria.            *"
-							+ "\n*  4) Ver los datos de un cliente.                     *"
-							+ "\n*  4) Eliminar una cuenta bancaria.                    *"
-							+ "\n*  4) Salir.                                           *"
-							+ "\n********************************************************");
-		sendObject(this.mensaje);
-	}
-	
-	/**
-	 * FUNCION QUE CREA UN STRING AL CUAL SE LE AÑADEN TODOS LOS CLIENTES(SOCKETS),
-	 * CONECTADOS AL SERVIDOR.
-	 * 
-	 * @throws IOException
-	 */
-	private void showOnlineUsers() throws IOException {
-		String users = "";
-		users=users+("Los usuarios actualmente en línea son: \n");
-
-		for (String nickName : Servidor.nickNameSocketMap.keySet()) {
-			users=users+("[")+(nickName)+("]\n");
-		}
-		this.mensaje.setDescripcion(users);
-		sendObject(this.mensaje);
-	}
 
 	/**
 	 * FUNCION PARA ENVIAR UN OBJETO AL CLIENTE CON EL SOCKET.
 	 * @throws IOException
 	 */
 	private void sendObject(Mensaje mensaje) throws IOException {
+		mensaje.setComando(100);
+		out.flush();
 		out.writeObject(new Mensaje(mensaje));
+
 	}
 	
 }

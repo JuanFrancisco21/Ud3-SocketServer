@@ -41,7 +41,6 @@ public class Servidor {
 					
 					//SI SE INICIA SESION CREA EL HILO E INFORMA POR CONSOLA.
 					if (login()) {
-						System.out.println("Un nuevo usuario conectado: " +socket);						
 						new Thread(new HiloServidor(socket,currentUserNickName,mensaje,in,out)).start();
 					}
 				} catch (Exception e) {
@@ -57,41 +56,50 @@ public class Servidor {
 	
 	/**
 	 * 	FUNCION PARA SETEAR EL NOMBRE DEL SOCKET Y GUARDARLO EN EL NICNAMESOCKETMAP DEL SERVIDOR
+	 *  ESTO SIRVE PARA TENER CONTROL DE LOS USUARIOS ONLINE Y NO CONECTAR DOS USUARIOS A LA VEZ.
 	 * @throws IOException
 	 */
 	private static boolean login() throws IOException {
 		boolean result = false;
-		mensaje.setDescripcion("¡Bienvenido a la sala de chat! \nIntroduzca su usuario y contraseña:");
-		sendObject(mensaje);
 		try {
 			while (true) {
 				mensaje = (Mensaje) in.readObject();
 				String nickName = mensaje.getUsuario();
 				
-				if (!Servidor.nickNameSocketMap.containsKey(nickName)) {
-					if (checkDatabase()) {
+				if (checkDatabase()) {
+					if (!Servidor.nickNameSocketMap.containsKey(nickName)) {
 						currentUserNickName = nickName;
 						Servidor.nickNameSocketMap.put(nickName, socket);
+						mensaje.setDescripcion("logeado");
+						sendObject(mensaje);
 						result = true;
 						break;
+					}else {
+						mensaje.setDescripcion("Usuario ya conectado");
+						sendObject(mensaje);
 					}
 				} else {
-					mensaje.setDescripcion("El apodo que ingresó ya existe, vuelva a ingresar:");
+					mensaje.setDescripcion("Usuario no registrado");
 					sendObject(mensaje);
 				}
 				
 			}
 		} catch (Exception e) {
-			System.out.println("Error al logear.");
+			System.out.println("Usuario Desconectado.");
 		}
 		return result;
 	}
 	
+	/**
+	 * MÉTODO EL CUAL INDICA SI FUNCIONA LA BASE DE DATOS
+	 * @return BOOLEANO TRUE/FALSE.
+	 */
 	private static boolean checkDatabase() {
 		boolean result = false;
 		Usuario usuario = UsuarioDAO.List_User_By_Username(mensaje.getUsuario());
 		if (usuario.getId()>=0) {
 			if (usuario.getPassword().equals(mensaje.getPassword())) {
+				mensaje.setUser(usuario);
 				result = true;
 			}
 		}
@@ -103,7 +111,9 @@ public class Servidor {
 	 * @throws IOException
 	 */
 	private static void sendObject(Mensaje mensaje) throws IOException {
+		out.flush();
 		out.writeObject(new Mensaje(mensaje));
+
 	}
 
 }

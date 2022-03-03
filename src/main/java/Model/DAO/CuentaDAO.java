@@ -18,6 +18,7 @@ public class CuentaDAO extends Cuenta{
 			+"ON DUPLICATE KEY UPDATE id=?, Dinero=?, Transacciones=?";
 	private final static String SELECT_All = "SELECT * FROM cuenta";
 	private final static String SELECT_by_Id = "SELECT * FROM cuenta WHERE id = ?";
+	private final static String SELECT_by_MAXId = "SELECT * FROM cuenta WHERE id=(SELECT MAX(id) FROM cuenta)";
 	private final static String DELETE_by_Id = "DELETE FROM cuenta WHERE id = ?";
 
 	public CuentaDAO() {
@@ -91,6 +92,33 @@ public class CuentaDAO extends Cuenta{
 		}
 		return result;
 	}
+	
+	/**
+	 * List Account by MAXid
+	 * @return the Account with that MAXid
+	 */
+	public static Cuenta List_Cuenta_By_MAXId() {
+		Cuenta result = new Cuenta();
+		Connection c = Conexion.getConexion();
+
+		if (c != null) {
+			try {
+				PreparedStatement ps = c.prepareStatement(SELECT_by_MAXId);
+				ResultSet rs = ps.executeQuery();
+				if (rs.next()) {
+					Cuenta cuenta = new Cuenta();
+					cuenta.setId(rs.getInt("id"));
+					cuenta.setMoney(rs.getFloat("Dinero"));
+					cuenta.setTransactions(rs.getString("Transacciones"));
+					result = cuenta;
+				}
+				rs.close();
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+			}
+		}
+		return result;
+	}
 
 
 	/**
@@ -108,7 +136,6 @@ public class CuentaDAO extends Cuenta{
 					PreparedStatement q = con.prepareStatement(INSERT);
 					q.setFloat(1, this.money);
 					q.setString(2, this.transactions);
-					System.out.println(q.toString());
 					rs = q.executeUpdate();
 				} catch (SQLException e) {
 					e.printStackTrace();
