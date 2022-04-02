@@ -74,9 +74,9 @@ public class HiloServidor implements Runnable {
 							break;
 						case 2:
 							//RETIRAR X CANTIDAD DE DINERO
-							if (mensaje.getCuenta()!=null && mensaje.getDineroTransaccion()>=1 && cuenta.getMoney()>mensaje.getDineroTransaccion()) {
-								cuenta=CuentaDAO.List_Cuenta_By_Id(Cuenta_UsuarioDAO.List_Relation_By_User(
-										UsuarioDAO.List_User_By_Username(currentUserNickName).getId()).getCuenta().getId());
+							cuenta=CuentaDAO.List_Cuenta_By_Id(Cuenta_UsuarioDAO.List_Relation_By_User(
+									UsuarioDAO.List_User_By_Username(currentUserNickName).getId()).getCuenta().getId());
+							if (cuenta!=null && mensaje.getDineroTransaccion()>=1 && cuenta.getMoney()>mensaje.getDineroTransaccion()) {
 								CuentaDAO c = new CuentaDAO(cuenta);
 								c.setMoney(c.getMoney()-(mensaje.getDineroTransaccion()));
 								c.setTransactions(c.getTransactions()+"\nRetirados "+mensaje.getDineroTransaccion()+"€ por "+usuario.getName());
@@ -85,6 +85,7 @@ public class HiloServidor implements Runnable {
 								mensaje.setDescripcion("Retirados "+mensaje.getDineroTransaccion()+"€ a la cuenta");
 								sendObject(mensaje);
 							} else {
+								
 								mensaje.setDescripcion("Error al retirar dinero de la cuenta");
 								sendObject(mensaje);
 							}
